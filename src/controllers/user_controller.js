@@ -1,6 +1,8 @@
 const userController ={};
 const {User} = require('../db/sequelize');
 const response = require('../utils/global_response');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 function findOne(id) {
     return User.findOne({
@@ -10,18 +12,74 @@ function findOne(id) {
     });
 }
 
+function findByUsername(username) {
+    return User.findOne({
+        where: {
+            username
+        }
+    });
+}
+
+function findByEmail(email) {
+    return User.findOne({
+        where: {
+            email
+        }
+    });
+}
+
 userController.createUser = (req, res) => {
     let data = req.body;
-    User.create({
-        username: data.username,
-        email: data.email,
-        password: data.password,
-    }).then((user) => {
-        console.log(resp);
-        res.json(response({
-            status: 'SUCCESS',
-            data: resp,
-        }));
+
+    findByUsername(data.username).then((user) => {
+        if(user === null){
+            findByEmail(data.email).then((user) => {
+                if(user === null){
+                    bcrypt.hash(data.password, saltRounds, (e, hash) => {
+                        if(e){
+                            console.log(e);
+                            res.json(response({
+                                status: 'ERROR',
+                                msg: 'Error al registrar usuario'
+                            }));
+                        } else {
+                            User.create({
+                                username: data.username,
+                                email: data.email,
+                                password: hash,
+                            }).then((user) => {
+                                res.json(response({
+                                    status: 'SUCCESS',
+                                    data: user,
+                                }));
+                            }).catch((e) => {
+                                console.log(e);
+                                res.json(response({
+                                    status: 'ERROR',
+                                    msg: 'Error al registrar usuario'
+                                })); 
+                            });
+                        }
+                    });
+                } else {
+                    res.json(response({
+                        status: 'ERROR',
+                        msg: 'Usuario o Correo ya registrado'
+                    })); 
+                }
+            }).catch((e) => {
+                console.log(e);
+                res.json(response({
+                    status: 'ERROR',
+                    msg: 'Error al registrar usuario'
+                })); 
+            });
+        } else {
+            res.json(response({
+                status: 'ERROR',
+                msg: 'Usuario o Correo ya registrado'
+            })); 
+        }
     }).catch((e) => {
         console.log(e);
         res.json(response({
