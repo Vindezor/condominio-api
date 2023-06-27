@@ -1,14 +1,16 @@
 const userController ={};
-const {User} = require('../db/sequelize');
+const {User, TypeUser} = require('../db/sequelize');
 const response = require('../utils/global_response');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const jwt = require('jsonwebtoken');
 
 function findOne(id) {
     return User.findOne({
         where: {
             id
-        }
+        },
+        include: TypeUser,
     });
 }
 
@@ -16,7 +18,8 @@ function findByUsername(username) {
     return User.findOne({
         where: {
             username
-        }
+        },
+        include: TypeUser,
     });
 }
 
@@ -24,8 +27,61 @@ function findByEmail(email) {
     return User.findOne({
         where: {
             email
-        }
+        },
+        include: TypeUser,
     });
+}
+
+userController.testToken = (req, res) => {
+    let token = req.headers.authorization;
+    jwt.verify(token, 'secret', (err, decoded) => {
+        console.log(err);
+        console.log(decoded);
+        res.json(response({
+            status: 'ERROR',
+            msg: 'Usuario o Contraseña inválida',
+            data: decoded
+        }));
+    })
+}
+
+userController.loginUser = (req, res) => {
+    let data = req.body;
+    if(data.username === undefined || data.password === undefined){
+        res.json(response({
+            status: 'ERROR',
+            msg: 'Usuario o Contraseña inválida'
+        }));
+    } else {
+        findByUsername(data.username).then((user) => {
+            if(user === null){
+                res.json(response({
+                    status: 'ERROR',
+                    msg: 'Usuario o Contraseña inválida'
+                }));
+            } else {
+                bcrypt.compare(data.password, user.password, (err, result) => {
+                    if(result){
+                        let token = jwt.sign({
+                            status: user.status,
+                        }, 'secret', { algorithm: 'HS256', expiresIn: 60 * 60 });
+                        res.json(response({
+                            status: 'SUCCESS',
+                            msg: 'Sesion exitosa',
+                            data: {
+                                token: token,
+                            }
+                        }));
+                    } else {
+                        res.json(response({
+                            status: 'ERROR',
+                            msg: 'Usuario o Contraseña inválida'
+                        }));
+                    }
+                });
+            }
+        });
+    }
 }
 
 userController.createUser = (req, res) => {
@@ -91,9 +147,12 @@ userController.createUser = (req, res) => {
 
 userController.get = (req, res, next) => {
 
-    User.findAll().then(users => {
+    User.findAll({ include: TypeUser }).then(users => {
         res.json(users)
-    }).catch(next);
+    }).catch(e => {
+        console.log(e);
+        next();
+    });
 };
 
 userController.getUser = (req, res, next) => {

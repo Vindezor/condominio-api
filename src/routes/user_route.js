@@ -1,6 +1,12 @@
 const router = require('express').Router();
 const UserController = require('../controllers/user_controller');
 
+router.route('/testToken')
+    .post(UserController.testToken)
+
+router.route('/login')
+    .post(UserController.loginUser)
+
 router.route('/register')
     .post(UserController.createUser)
 
