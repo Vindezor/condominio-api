@@ -1,8 +1,13 @@
 const router = require('express').Router();
 const UserController = require('../controllers/user_controller');
+const validateJWT = require('../middleware/validateJWT');
 
 router.route('/testToken')
-    .post(UserController.testToken)
+    .post((req, res, next) => {
+        // This is the callback function
+        // Wrap the validateJWT middleware
+        validateJWT.validateJWT(req, res, next);
+    }, UserController.testToken)
 
 router.route('/login')
     .post(UserController.loginUser)
