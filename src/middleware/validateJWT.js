@@ -9,7 +9,7 @@ const validateJWT = (req, res, next) => {
     }));
     try {
         const verified = jwt.verify(token, 'secret')
-        //req.user = verified
+        req.id_type_user = verified.id_type_user;
         next()
     } catch (error) {
         res.status(401).json(response({

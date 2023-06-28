@@ -45,6 +45,38 @@ userController.testToken = (req, res) => {
     })
 }
 
+userController.updateUserTypeUser = (req, res) => {
+    if(req.id_type_user === 3){
+        findOne(req.body.id_user).then(async (user) => {
+            if(user) {
+                try {
+                    user.id_type_user = req.body.id_type_user;
+                    await user.save();
+                    findOne(user.id).then((user) => {
+                        res.json(response({
+                            status: 'SUCCESS',
+                            msg: 'Cambio exitoso',
+                            data: user,
+                        }));
+                    });
+                } catch (error) {
+                    res.json(response({
+                        status: 'ERROR',
+                        msg: 'Error al hacer el cambio'
+                    }));
+                }
+            } else {
+                res.json(response({
+                    status: 'ERROR',
+                    msg: 'Usuario no encontrado'
+                }));
+            }
+        })
+    } else {
+        res.status(403).send();
+    }
+}
+
 userController.loginUser = (req, res) => {
     let data = req.body;
     if(data.username === undefined || data.password === undefined){
@@ -64,6 +96,7 @@ userController.loginUser = (req, res) => {
                     if(result){
                         let token = jwt.sign({
                             status: user.status,
+                            id_type_user: user.id_type_user,
                         }, 'secret', { algorithm: 'HS256', expiresIn: 60 * 60 });
                         res.json(response({
                             status: 'SUCCESS',
