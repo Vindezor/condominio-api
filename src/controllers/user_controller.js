@@ -77,6 +77,43 @@ userController.updateUserTypeUser = (req, res) => {
     }
 }
 
+userController.updateUser = (req, res) => {
+    if(req.body.id_user !== undefined && req.body.id_user !== null){
+        if(req.body.id_user === req.id_user){
+            findOne(req.body.id_user).then(async (user) => {
+                if(user){
+                    try {
+                        user.email = req.body.email ? req.body.email : user.email;
+                        user.username = req.body.username ? req.body.username : user.username;
+                        await user.save();
+                        findOne(user.id).then((user) => {
+                            res.json(response({
+                                status: 'SUCCESS',
+                                msg: 'Cambio exitoso',
+                                data: user,
+                            }));
+                        });
+                    } catch (error) {
+                        res.json(response({
+                            status: 'ERROR',
+                            msg: 'Error al hacer el cambio'
+                        }));
+                    }
+                } else {
+                    res.json(response({
+                        status: 'ERROR',
+                        msg: 'Usuario no encontrado'
+                    }));
+                }
+            })
+        } else {
+            res.status(403).send();
+        }
+    } else {
+        res.status(403).send();
+    }
+}
+
 userController.loginUser = (req, res) => {
     let data = req.body;
     if(data.username === undefined || data.password === undefined){
@@ -97,6 +134,7 @@ userController.loginUser = (req, res) => {
                         let token = jwt.sign({
                             status: user.status,
                             id_type_user: user.id_type_user,
+                            id_user: user.id,
                         }, 'secret', { algorithm: 'HS256', expiresIn: 60 * 60 });
                         res.json(response({
                             status: 'SUCCESS',

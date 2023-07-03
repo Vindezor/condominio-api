@@ -10,6 +10,7 @@ const validateJWT = (req, res, next) => {
     try {
         const verified = jwt.verify(token, 'secret')
         req.id_type_user = verified.id_type_user;
+        req.id_user = verified.id_user;
         next()
     } catch (error) {
         res.status(401).json(response({
