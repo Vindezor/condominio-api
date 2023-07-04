@@ -15,9 +15,16 @@ typeUserController.create = (req, res) => {
     TypeUser.create({
         type_user: data.type_user
     }).then((type_user) => {
-        res.json(type_user)
+        res.json(response({
+            status: 'SUCCESS',
+            data: type_user,
+        }));
     }).catch((e) => {
-        res.json(e)
+        console.log(e);
+        res.json(response({
+            status: 'ERROR',
+            msg: 'Error al registrar tipo de usuario'
+        })); 
     });
 }
 

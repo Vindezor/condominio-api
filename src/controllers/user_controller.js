@@ -216,6 +216,31 @@ userController.createUser = (req, res) => {
     });
 };
 
+userController.setOwnerToUser = (req, res) => {
+    if(req.id_type_user === 2){
+        findOne(req.body.id_user).then(async (user) => {
+            if(user) {
+                user.id_owner = req.body.id_owner;
+                await user.save();
+                findOne(user.id).then((user) => {
+                    res.json(response({
+                        status: 'SUCCESS',
+                        msg: 'Asignación exitosa',
+                        data: user,
+                    }));
+                });
+            } else {
+                res.json(response({
+                    status: 'ERROR',
+                    msg: 'Usuario no encontrado'
+                }));
+            }
+        })
+    } else {
+        res.status(403).send();
+    }
+}
+
 userController.get = (req, res, next) => {
 
     User.findAll({ include: TypeUser }).then(users => {
