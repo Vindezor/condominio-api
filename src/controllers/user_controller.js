@@ -217,7 +217,7 @@ userController.createUser = (req, res) => {
 };
 
 userController.setOwnerToUser = (req, res) => {
-    if(req.id_type_user === 2){
+    if(req.id_type_user >= 2){
         findOne(req.body.id_user).then(async (user) => {
             if(user) {
                 user.id_owner = req.body.id_owner;

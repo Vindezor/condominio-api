@@ -1,20 +1,20 @@
-const ownerController ={};
-const {Owner} = require('../db/sequelize');
+const typeAmountController ={};
+const {TypeAmount} = require('../db/sequelize');
 const response = require('../utils/global_response');
 
 function findOne(id) {
-    return Owner.findOne({
+    return TypeAmount.findOne({
         where: {
             id
         }
     });
 }
 
-ownerController.findAll = (req, res, next) => {
-    Owner.findAll().then(owners => {
+typeAmountController.findAll = (req, res, next) => {
+    TypeAmount.findAll().then((type_amount) => {
         res.json(response({
             status: 'SUCCESS',
-            data: owners,
+            data: type_amount,
         }))
     }).catch((e) => {
         res.json(response({
@@ -24,23 +24,22 @@ ownerController.findAll = (req, res, next) => {
     });
 };
 
-ownerController.create = (req, res) => {
+typeAmountController.create = (req, res) => {
     if(req.id_type_user >= 2){
         let data = req.body;
-        Owner.create({
-            full_name: data.full_name,
-            contact_number: data.contact_number,
-            emergency_number: data.emergency_number,
-        }).then((owner) => {
+        TypeAmount.create({
+            type_amount: data.type_amount,
+            symbol: data.symbol,
+        }).then((type_amount) => {
             res.json(response({
                 status: 'SUCCESS',
-                data: owner,
+                data: type_amount,
             }));
         }).catch((e) => {
             console.log(e);
             res.json(response({
                 status: 'ERROR',
-                msg: 'Error al registrar dueño'
+                msg: 'Error al registrar el tipo de moneda'
             })); 
         });
     } else {
@@ -48,4 +47,4 @@ ownerController.create = (req, res) => {
     }
 }
 
-module.exports = ownerController;
+module.exports = typeAmountController;

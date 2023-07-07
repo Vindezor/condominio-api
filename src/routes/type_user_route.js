@@ -1,13 +1,14 @@
 const router = require('express').Router();
 const TypeUserController = require('../controllers/type_user_controller');
+const validateJWT = require('../middleware/validateJWT');
 
 router.route('/getAllTypeUser')
-    .get(TypeUserController.findAll)
+    .get(validateJWT, TypeUserController.findAll)
 
 router.route('/getTypeUserById/:typeUserId')
-    .get(TypeUserController.findById)
+    .get(validateJWT, TypeUserController.findById)
 
 router.route('/createTypeUser')
-    .post(TypeUserController.create)
+    .post(validateJWT, TypeUserController.create)
 
 module.exports = router;

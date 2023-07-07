@@ -1,19 +1,15 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-    return sequelize.define('property',
+    return sequelize.define('type_payment',
         {
             id: {
                 type: DataTypes.INTEGER,
                 autoIncrement: true,
                 primaryKey: true,
             },
-            property: {
+            type_payment: {
                 type: DataTypes.STRING,
-                allowNull: false,
-            },
-            id_type_property: {
-                type: DataTypes.INTEGER,
                 allowNull: false,
             },
         },{

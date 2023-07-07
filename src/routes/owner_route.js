@@ -7,3 +7,5 @@ router.route('/getAllOwner')
 
 router.route('/createOwner')
     .post(validateJWT, OwnerController.create)
+
+module.exports = router;
